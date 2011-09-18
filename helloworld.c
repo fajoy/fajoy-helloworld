@@ -7,7 +7,8 @@ int main()
 }
 
 
-int test2()
+int test1()
 {
-return 2
+return 1
 }
+
