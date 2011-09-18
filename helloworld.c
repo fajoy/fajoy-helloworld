@@ -7,10 +7,6 @@ int main()
 }
 
 
-int test1()
-{
-return 1
-}
 
 int test2()
 {
