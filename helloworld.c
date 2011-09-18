@@ -7,7 +7,7 @@ int main()
 }
 
 
-ini test2()
+int test2()
 {
-return 2
+return 2;
 }
