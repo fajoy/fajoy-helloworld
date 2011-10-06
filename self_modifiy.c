@@ -1,32 +1,35 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/mman.h>
-static int counter = 0;
-extern int Here, Start,End;
+static int testValue = 0;
+extern int DstStart,DstEnd,SrcStart,SrcEnd;
 
 int main()
-{
-	unsigned page = (unsigned) &Here & ~( getpagesize() - 1 );
-	/* chmod u=rwx page */
+{	
+
+	printf("pageSize=%d\n",getpagesize());
+	printf("&Src Start=%p  End=%p Size=%d\n",&SrcStart,&SrcEnd,(int)&SrcEnd - (int) &SrcStart);
+	printf("&Dst Start=%p  End=%p Size=%d\n",&DstStart,&DstEnd,(int)&DstEnd - (int) &DstStart);
+
+	unsigned page = (unsigned) &DstStart & ~( getpagesize() - 1 );
+	/* chmod memory page=rwx page */
 	if (mprotect((char*) page,
 				getpagesize(),
 				PROT_READ | PROT_WRITE | PROT_EXEC ) ) {
 		perror( "mprotect failed" );
 	}
-	memcpy(&Here, &Start,  (int)&End - (int) &Start);
-	asm volatile( "Here:" );
-	printf("/* Program invoked.\n");
-	printf("Hello World!\n");
-	printf("  #%d */\n", ++counter);
-	printf("%d\n",getpagesize());
+	memcpy(&DstStart, &SrcStart,  (int)&SrcEnd - (int) &SrcStart);
+	asm volatile( "DstStart:" );
+	testValue=100;
+	asm volatile( "DstEnd:" );
+	printf("testValue=%d\n",testValue);
 	return 0;
 }
 
 void dummyCodeContext()
 {
-	int (*callPrintf)( const char *format, ... );
-	asm volatile( "Start:" );
-	(*(callPrintf=&printf))( "/* Dummy code context invoked.\n");
-	asm volatile( "End:" );
+	asm volatile( "SrcStart:" );
+	testValue=200;
+	asm volatile( "SrcEnd:" );
 }
 
