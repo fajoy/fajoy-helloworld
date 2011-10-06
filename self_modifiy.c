@@ -4,6 +4,7 @@
 static int testValue = 0;
 extern int DstStart,DstEnd,SrcStart,SrcEnd;
 
+int (*callPrintf)( const char *format, ... );
 int main()
 {	
 
@@ -19,17 +20,17 @@ int main()
 		perror( "mprotect failed" );
 	}
 	memcpy(&DstStart, &SrcStart,  (int)&SrcEnd - (int) &SrcStart);
+	callPrintf=printf;
 	asm volatile( "DstStart:" );
-	testValue=100;
+	(*callPrintf)("HelloWorld\n");
 	asm volatile( "DstEnd:" );
-	printf("testValue=%d\n",testValue);
 	return 0;
 }
 
 void dummyCodeContext()
-{
+{	
 	asm volatile( "SrcStart:" );
-	testValue=200;
+        (*callPrintf)( "Hello This Modify Code\n");
 	asm volatile( "SrcEnd:" );
 }
 
